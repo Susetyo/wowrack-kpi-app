@@ -1,0 +1,9 @@
+.sider-container .ant-menu-item-selected{
+  background-color: #ff8041;
+}
+.sider-container .ant-menu-item{
+  color: white;
+}
+.sider-container .ant-menu-item:hover{
+  color: #ff8041 !important;
+}
