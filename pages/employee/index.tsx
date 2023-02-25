@@ -119,7 +119,9 @@ const Index = () => {
             type="primary"
             shape="circle"
             icon={<EditOutlined />}
-            onClick={() => {}}
+            onClick={() => {
+              router.push("/employee/edit/1");
+            }}
           />
           <Button
             danger
