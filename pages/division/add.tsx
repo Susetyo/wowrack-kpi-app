@@ -71,34 +71,12 @@ const Add = () => {
     <>
       <Breadcrumb>
         <Breadcrumb.Item>
-          <Link href="/employee">Division List</Link>
+          <Link href="/division">Division List</Link>
         </Breadcrumb.Item>
-        <Breadcrumb.Item>Add Division</Breadcrumb.Item>
+        <Breadcrumb.Item>Add Divison</Breadcrumb.Item>
       </Breadcrumb>
       <Row gutter={[16, 8]} className="mt-4">
-        <Col span={4}>
-          <div
-            className={`${stepStyle} ${
-              showSections?.gi
-                ? borderStyle + " border-[#1890FF]"
-                : borderStyle + " border-gray-500"
-            }`}
-            onClick={() => onClickSection("gi")}
-          >
-            General Information
-          </div>
-          <div
-            className={`${stepStyle} ${
-              showSections?.p
-                ? borderStyle + " border-[#1890FF]"
-                : borderStyle + " border-gray-500"
-            }`}
-            onClick={() => onClickSection("p")}
-          >
-            Password
-          </div>
-        </Col>
-        <Col span={20}>
+        <Col span={24}>
           <div className="bg-white px-4 pb-4 pt-2">
             <Form
               name="customized_form_controls"

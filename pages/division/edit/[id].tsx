@@ -71,9 +71,9 @@ const Add = () => {
     <>
       <Breadcrumb>
         <Breadcrumb.Item>
-          <Link href="/employee">Division List</Link>
+          <Link href="/employee">Employee List</Link>
         </Breadcrumb.Item>
-        <Breadcrumb.Item>Add Division</Breadcrumb.Item>
+        <Breadcrumb.Item>Add Employee</Breadcrumb.Item>
       </Breadcrumb>
       <Row gutter={[16, 8]} className="mt-4">
         <Col span={4}>
