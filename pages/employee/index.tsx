@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/alt-text */
 import { Input, Select, Button, Table, Tag, Image } from "antd";
 const { Search } = Input;
 import { PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
@@ -6,60 +5,26 @@ import { useRouter } from "next/router";
 import type { ColumnsType } from "antd/es/table";
 import useModalStore from "@/commons/store/modal";
 import ModalDeleteEmployee from "./ModalDeleteEmployee";
+import { getHeader } from "@/commons/utils/fetchOptions";
 
 interface DataType {
-  key: string;
-  idEmployee: string;
-  employeeName: string;
-  division: string;
+  _id: string;
+  employeeID: string;
+  avatar: any;
+  fullname: string;
+  slug: string;
+  division: {
+    _id: string;
+    title: string;
+    id: string;
+  };
   email: string;
   status: string;
+  kpiScore: number;
 }
 
-const dataSource = [
-  {
-    key: "1",
-    idEmployee: "001",
-    employeeName: "Barou",
-    division: "Support IT",
-    email: "barou@gmail.com",
-    status: "active",
-  },
-  {
-    key: "2",
-    idEmployee: "002",
-    employeeName: "Ishekai",
-    division: "Support IT",
-    email: "ishekai@gmail.com",
-    status: "active",
-  },
-  {
-    key: "3",
-    idEmployee: "003",
-    employeeName: "Monogatari",
-    division: "Support IT",
-    email: "monogatari@gmail.com",
-    status: "active",
-  },
-  {
-    key: "4",
-    idEmployee: "004",
-    employeeName: "Amaterasu",
-    division: "Support IT",
-    email: "amaterasu@gmail.com",
-    status: "active",
-  },
-  {
-    key: "5",
-    idEmployee: "005",
-    employeeName: "Knife",
-    division: "Support IT",
-    email: "Knife@gmail.com",
-    status: "deactive",
-  },
-];
-
-const Index = () => {
+const Index = ({ data }: any) => {
+  console.log(data, "@@data");
   const modalStore = useModalStore((state) => state);
   const router = useRouter();
   const onSearch = (value: string) => console.log(value);
@@ -68,14 +33,14 @@ const Index = () => {
   const columns: ColumnsType<DataType> = [
     {
       title: "ID Employee",
-      dataIndex: "idEmployee",
-      key: "idEmployee",
+      dataIndex: "employeeID",
+      key: "employeeID",
     },
     {
       title: "Employee Name",
-      dataIndex: "employeeName",
-      key: "employeeName",
-      render: (_, record) => (
+      dataIndex: "fullname",
+      key: "fullname",
+      render: (_, { fullname }) => (
         <div className="flex gap-2">
           <Image
             width={22}
@@ -84,7 +49,7 @@ const Index = () => {
               src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
             }}
           />
-          {record?.employeeName}
+          {fullname}
         </div>
       ),
     },
@@ -92,6 +57,7 @@ const Index = () => {
       title: "Division",
       dataIndex: "division",
       key: "division",
+      render: (_, { division: { title } }) => <div>{title}</div>,
     },
     {
       title: "Email",
@@ -166,15 +132,27 @@ const Index = () => {
           </Button>
         </div>
       </div>
-      <Table
-        columns={columns}
-        dataSource={dataSource}
-        pagination={{ pageSize: 50 }}
-        scroll={{ y: 340 }}
-      />
+      {data?.data && (
+        <Table
+          columns={columns}
+          dataSource={data?.data?.list}
+          pagination={{ pageSize: 50 }}
+          scroll={{ y: 340 }}
+        />
+      )}
       <ModalDeleteEmployee />
     </>
   );
 };
 
 export default Index;
+
+export async function getServerSideProps({ req }: any) {
+  const fetching = await fetch("http://127.0.0.1:3000/api/user", {
+    method: "GET",
+    headers: getHeader(req.headers.cookie),
+  });
+  const data = await fetching.json();
+
+  return { props: { data } };
+}
