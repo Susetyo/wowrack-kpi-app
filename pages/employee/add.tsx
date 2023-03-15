@@ -18,7 +18,6 @@ import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { useRouter } from "next/router";
 import { getHeader, fetchPost } from "@/commons/utils/fetchOptions";
 import { useMemo } from "react";
-
 const { Option } = Select;
 
 const borderStyle = "border-solid border-t-0 border-b-0 border-l-0 border-r-2";
@@ -113,7 +112,10 @@ const Add = ({ division, position }: any) => {
         avatar: null,
         position: listPosition[0]?._id,
       };
-      await fetchPost("http://127.0.0.1:3000/api/user/create", dataWillBeSend);
+      await fetch("/api/createEmployee", {
+        method: "POST",
+        body: JSON.stringify(dataWillBeSend),
+      });
       message.success("Success insert new employee");
       router.push("/employee");
     } catch (err: any) {
@@ -127,9 +129,9 @@ const Add = ({ division, position }: any) => {
     <>
       <Breadcrumb>
         <Breadcrumb.Item>
-          <Link href="/employee">Division List</Link>
+          <Link href="/employee">Employee List</Link>
         </Breadcrumb.Item>
-        <Breadcrumb.Item>Add Division</Breadcrumb.Item>
+        <Breadcrumb.Item>Add Employee</Breadcrumb.Item>
       </Breadcrumb>
       <Row gutter={[16, 8]} className="mt-4">
         <Col span={4}>
@@ -277,16 +279,16 @@ const Add = ({ division, position }: any) => {
   );
 };
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ req }: any) {
   const fetchingDivision = await fetch("http://127.0.0.1:3000/api/division", {
     method: "GET",
-    headers: getHeader(),
+    headers: getHeader(req.headers.cookie),
   });
   const division = await fetchingDivision.json();
 
   const fetchingPosition = await fetch("http://127.0.0.1:3000/api/position", {
     method: "GET",
-    headers: getHeader(),
+    headers: getHeader(req.headers.cookie),
   });
   const position = await fetchingPosition.json();
 

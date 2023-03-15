@@ -22,8 +22,6 @@ const Login: React.FC = () => {
       console.log(err);
       message.error("Something went wrong !!!");
     }
-
-    console.log(fetch, "@@fetch");
   };
 
   const onFinishFailed = (errorInfo: any) => {
