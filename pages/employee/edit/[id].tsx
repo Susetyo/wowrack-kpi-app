@@ -11,22 +11,49 @@ import {
   Select,
   DatePicker,
 } from "antd";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
-import type { UploadProps, DatePickerProps } from "antd";
+import type { UploadProps } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { useRouter } from "next/router";
 import { getHeader } from "@/commons/utils/fetchOptions";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
 const borderStyle = "border-solid border-t-0 border-b-0 border-l-0 border-r-2";
 const stepStyle = "bg-white cursor-pointer h-[38px] py-[8px] pl-2";
 
-const Add = ({ data }: any) => {
-  console.log(data, "@@data");
+interface IDivision {
+  _id: string;
+  divisionID: string;
+  title: string;
+  slug: string;
+  employeeCount: number;
+}
+
+interface IPosition {
+  _id: string;
+  name: string;
+}
+
+interface putData {
+  fullname: string;
+  avatar: any;
+  position: string;
+  division: string;
+  birthplace: string;
+  birthdate: string;
+  bio: string;
+  phone: string;
+  email: string;
+  password?: string;
+}
+
+const url_edit = "/api/employee/edit?id=";
+
+const Edit = ({ data, division, position }: any) => {
   const router = useRouter();
-  const [form] = Form.useForm();
   const [showSections, setShowSections] = useState({
     gi: true,
     p: false,
@@ -61,12 +88,44 @@ const Add = ({ data }: any) => {
     },
   };
 
-  const onFinish = (values: any) => {
-    console.log("Received values from form: ", values);
-    // console.log(values?.dateOfBirth.format("YYYY-MM-DD"));
+  const listDivision: IDivision[] = useMemo(() => {
+    if (division?.data) {
+      return division?.data?.list;
+    }
 
-    message.success("Success insert new employee");
-    router.push("/employee");
+    return [];
+  }, [division]);
+
+  const listPosition: IPosition[] = useMemo(() => {
+    if (position?.data) {
+      return position?.data?.list;
+    }
+
+    return [];
+  }, [position]);
+
+  const onFinish = async (values: any) => {
+    try {
+      const dataWillBeSend: putData = {
+        ...values,
+        birthdate: values?.birthdate.format("YYYY-MM-DD"),
+        avatar: null,
+        position: listPosition[0]?._id,
+      };
+      const res = await fetch(url_edit + data?.data?._id, {
+        method: "PUT",
+        body: JSON.stringify(dataWillBeSend),
+      });
+
+      if (res?.status !== 200) {
+        throw Error;
+      }
+
+      message.success("Edit new employee success !!!");
+      router.push("/employee");
+    } catch (err: any) {
+      message.error("Edit new employee failed !!!");
+    }
   };
 
   return (
@@ -108,10 +167,13 @@ const Add = ({ data }: any) => {
               layout="vertical"
               onFinish={onFinish}
               initialValues={{
-                price: {
-                  number: 0,
-                  currency: "rmb",
-                },
+                fullname: data?.data?.fullname,
+                division: data?.data?.division?._id,
+                birthplace: data?.data?.birthplace,
+                birthdate: dayjs(data?.data?.birthdate),
+                bio: data?.data?.bio,
+                phone: data?.data?.phone,
+                email: data?.data?.email,
               }}
             >
               <div className={showSections?.gi ? "" : "hidden"}>
@@ -136,20 +198,21 @@ const Add = ({ data }: any) => {
                     <Button danger>Remove</Button>
                   </div>
                 </div>
-                <Form.Item name="fullName" label="Full Name">
+                <Form.Item name="fullname" label="Full Name">
                   <Input placeholder="Input Name" />
                 </Form.Item>
                 <div className="flex gap-2 justify-between">
-                  <Form.Item name="level" label="Level" className="grow">
+                  <Form.Item name="division" label="Level" className="grow">
                     <Select placeholder="Input level">
-                      <Option value="support">Support</Option>
-                      <Option value="support_coordinator">
-                        Support Coordinator
-                      </Option>
+                      {listDivision?.map((division: IDivision) => (
+                        <Option key={division?._id} value={division?._id}>
+                          {division?.title}
+                        </Option>
+                      ))}
                     </Select>
                   </Form.Item>
                   <Form.Item
-                    name="placeOfBirth"
+                    name="birthplace"
                     label="Place Of Birth"
                     className="grow"
                   >
@@ -159,22 +222,18 @@ const Add = ({ data }: any) => {
                     </Select>
                   </Form.Item>
                   <Form.Item
-                    name="dateOfBirth"
+                    name="birthdate"
                     label="Date Of Birth"
                     className="grow"
                   >
                     <DatePicker className="w-full" />
                   </Form.Item>
                 </div>
-                <Form.Item name="shortBio" label="Short bio">
-                  <Input placeholder="Input Name" />
+                <Form.Item name="bio" label="Short bio">
+                  <Input placeholder="Input bio" />
                 </Form.Item>
                 <div className="flex gap-2 justify-between">
-                  <Form.Item
-                    name="phoneNumber"
-                    className="grow"
-                    label="Phone Number"
-                  >
+                  <Form.Item name="phone" className="grow" label="Phone Number">
                     <Input placeholder="Input phone number" />
                   </Form.Item>
                   <Form.Item name="email" className="grow" label="Email">
@@ -201,14 +260,6 @@ const Add = ({ data }: any) => {
                     }
                   />
                 </Form.Item>
-                <Form.Item name="retypePassword" label="retypePassword">
-                  <Input.Password
-                    placeholder="Input retype password"
-                    iconRender={(visible) =>
-                      visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                    }
-                  />
-                </Form.Item>
                 <div className="flex gap-2 justify-end">
                   <Form.Item>
                     <Button onClick={() => onClickSection("gi")} type="default">
@@ -230,14 +281,26 @@ const Add = ({ data }: any) => {
   );
 };
 
-export default Add;
+export default Edit;
 
 export async function getServerSideProps({ req, query }: any) {
+  const fetchingDivision = await fetch("http://127.0.0.1:3000/api/division", {
+    method: "GET",
+    headers: getHeader(req.headers.cookie),
+  });
+  const division = await fetchingDivision.json();
+
+  const fetchingPosition = await fetch("http://127.0.0.1:3000/api/position", {
+    method: "GET",
+    headers: getHeader(req.headers.cookie),
+  });
+  const position = await fetchingPosition.json();
+
   const fetching = await fetch(`http://127.0.0.1:3000/api/user/${query.id}`, {
     method: "GET",
     headers: getHeader(req.headers.cookie),
   });
   const data = await fetching.json();
 
-  return { props: { data } };
+  return { props: { data, division, position } };
 }

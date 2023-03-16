@@ -13,10 +13,10 @@ import {
 } from "antd";
 import { useState } from "react";
 import Link from "next/link";
-import type { UploadProps, DatePickerProps } from "antd";
+import type { UploadProps } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { useRouter } from "next/router";
-import { getHeader, fetchPost } from "@/commons/utils/fetchOptions";
+import { getHeader } from "@/commons/utils/fetchOptions";
 import { useMemo } from "react";
 const { Option } = Select;
 
@@ -112,7 +112,7 @@ const Add = ({ division, position }: any) => {
         avatar: null,
         position: listPosition[0]?._id,
       };
-      await fetch("/api/createEmployee", {
+      await fetch("/api/employee/create", {
         method: "POST",
         body: JSON.stringify(dataWillBeSend),
       });
@@ -163,12 +163,6 @@ const Add = ({ division, position }: any) => {
               className="mt-4"
               layout="vertical"
               onFinish={onFinish}
-              initialValues={{
-                price: {
-                  number: 0,
-                  currency: "rmb",
-                },
-              }}
             >
               <div className={showSections?.gi ? "" : "hidden"}>
                 <div className="flex justify-between items-center mb-2">

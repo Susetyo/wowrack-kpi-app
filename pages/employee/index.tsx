@@ -24,7 +24,6 @@ interface DataType {
 }
 
 const Index = ({ data }: any) => {
-  console.log(data, "@@data");
   const modalStore = useModalStore((state) => state);
   const router = useRouter();
   const onSearch = (value: string) => console.log(value);
@@ -86,8 +85,7 @@ const Index = ({ data }: any) => {
             shape="circle"
             icon={<EditOutlined />}
             onClick={() => {
-              console.log(record, "@@record");
-              // router.push("/employee/edit/1");
+              router.push("/employee/edit/" + record?.slug);
             }}
           />
           <Button
@@ -95,7 +93,13 @@ const Index = ({ data }: any) => {
             type="default"
             shape="circle"
             icon={<DeleteOutlined />}
-            onClick={() => modalStore.openModal("modal-delete-employee")}
+            onClick={() => {
+              modalStore.setModalData({
+                ...modalStore?.modalData,
+                id: record?._id,
+              });
+              modalStore.openModal("modal-delete-employee");
+            }}
           />
         </div>
       ),
