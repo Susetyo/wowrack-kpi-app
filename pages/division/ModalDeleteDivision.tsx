@@ -1,11 +1,27 @@
 import { Modal, message } from "antd";
 import useModalStore from "@/commons/store/modal";
+import { useRouter } from "next/router";
+const url_delete = "/api/division/delete?id=";
 
 const ModalDeleteDivision = () => {
   const modalStore = useModalStore((state) => state);
-  const onClickSubmit = () => {
-    message.success("Success delete employee");
-    modalStore.closeModal();
+  const route = useRouter();
+  const onClickSubmit = async () => {
+    try {
+      const res = await fetch(`${url_delete}${modalStore?.modalData?.id}`, {
+        method: "DELETE",
+      });
+
+      if (res?.status !== 200) {
+        throw Error;
+      }
+
+      message.success("Delete Division Successfull !!!");
+      modalStore.closeModal();
+      route.push("/division");
+    } catch (err) {
+      message.error("Delete Division Failed !!!");
+    }
   };
 
   return (

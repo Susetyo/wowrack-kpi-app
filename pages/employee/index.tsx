@@ -86,7 +86,8 @@ const Index = ({ data }: any) => {
             shape="circle"
             icon={<EditOutlined />}
             onClick={() => {
-              router.push("/employee/edit/1");
+              console.log(record, "@@record");
+              // router.push("/employee/edit/1");
             }}
           />
           <Button

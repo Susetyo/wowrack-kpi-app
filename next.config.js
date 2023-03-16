@@ -4,6 +4,19 @@ const nextConfig = {
   images: {
     domains: ['careers.wowrack.co.id', 'cdn.techinasia.com'],
   },
+  async headers(){
+    return [
+      {
+        source: '/api/:path*',
+        headers:[
+          {
+            key:'Content-Type',
+            value: 'application/json'
+          }
+        ]
+      }
+    ]
+  },
   async rewrites() {
     return [
       {

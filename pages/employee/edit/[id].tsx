@@ -16,13 +16,15 @@ import Link from "next/link";
 import type { UploadProps, DatePickerProps } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { useRouter } from "next/router";
+import { getHeader } from "@/commons/utils/fetchOptions";
 
 const { Option } = Select;
 
 const borderStyle = "border-solid border-t-0 border-b-0 border-l-0 border-r-2";
 const stepStyle = "bg-white cursor-pointer h-[38px] py-[8px] pl-2";
 
-const Add = () => {
+const Add = ({ data }: any) => {
+  console.log(data, "@@data");
   const router = useRouter();
   const [form] = Form.useForm();
   const [showSections, setShowSections] = useState({
@@ -229,3 +231,13 @@ const Add = () => {
 };
 
 export default Add;
+
+export async function getServerSideProps({ req, query }: any) {
+  const fetching = await fetch(`http://127.0.0.1:3000/api/user/${query.id}`, {
+    method: "GET",
+    headers: getHeader(req.headers.cookie),
+  });
+  const data = await fetching.json();
+
+  return { props: { data } };
+}

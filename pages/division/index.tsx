@@ -7,27 +7,16 @@ import type { ColumnsType } from "antd/es/table";
 import useModalStore from "@/commons/store/modal";
 import ModalDeleteDivision from "./ModalDeleteDivision";
 import ModalInsertUpdateDivision from "./ModalInsertUpdateDivision";
+import { getHeader } from "@/commons/utils/fetchOptions";
 
 interface DataType {
   key: string;
-  idDivision: string;
+  divisionID: string;
   title: string;
+  _id: string;
 }
 
-const dataSource = [
-  {
-    key: "1",
-    idDivision: "D001",
-    title: "Support IT",
-  },
-  {
-    key: "2",
-    idDivision: "D002",
-    title: "Support Coordinator",
-  },
-];
-
-const Index = () => {
+const Index = ({ data }: any) => {
   const modalStore = useModalStore((state) => state);
   const onSearch = (value: string) => console.log(value);
   const onSelect = (value: string) => console.log(value);
@@ -37,14 +26,16 @@ const Index = () => {
       title: "",
       modalTitle: "Add Division",
       okText: "Add",
+      isEdit: false,
+      id: "",
     });
     modalStore?.openModal("modal-insert-update-division");
   };
   const columns: ColumnsType<DataType> = [
     {
       title: "Division ID",
-      dataIndex: "idDivision",
-      key: "idDivision",
+      dataIndex: "divisionID",
+      key: "divisionID",
     },
     {
       title: "Division",
@@ -53,8 +44,8 @@ const Index = () => {
     },
     {
       title: "Number of employee",
-      dataIndex: "numberOfEmployee",
-      key: "numberOfEmployee",
+      dataIndex: "employeeCount",
+      key: "employeeCount",
     },
     {
       title: "Action",
@@ -68,9 +59,11 @@ const Index = () => {
             onClick={() => {
               modalStore?.setModalData({
                 ...modalStore?.modalData,
-                title: "",
+                title: record?.title,
                 modalTitle: "Edit Division",
                 okText: "Edit",
+                isEdit: true,
+                id: record?._id,
               });
               modalStore?.openModal("modal-insert-update-division");
             }}
@@ -80,7 +73,14 @@ const Index = () => {
             type="default"
             shape="circle"
             icon={<DeleteOutlined />}
-            onClick={() => modalStore.openModal("modal-delete-employee")}
+            onClick={() => {
+              modalStore?.setModalData({
+                ...modalStore?.modalData,
+                isEdit: false,
+                id: record?._id,
+              });
+              modalStore?.openModal("modal-delete-employee");
+            }}
           />
         </div>
       ),
@@ -120,14 +120,30 @@ const Index = () => {
       </div>
       <Table
         columns={columns}
-        dataSource={dataSource}
+        dataSource={data?.data?.list}
         pagination={{ pageSize: 50 }}
         scroll={{ y: 340 }}
       />
-      <ModalDeleteDivision />
-      <ModalInsertUpdateDivision />
+      {modalStore?.name === "modal-delete-employee" && <ModalDeleteDivision />}
+      {modalStore?.name === "modal-insert-update-division" && (
+        <ModalInsertUpdateDivision />
+      )}
     </>
   );
 };
 
 export default Index;
+
+export async function getServerSideProps({ req }: any) {
+  const fetching = await fetch("http://127.0.0.1:3000/api/division", {
+    method: "GET",
+    headers: getHeader(req.headers.cookie),
+  });
+  const data = await fetching.json();
+
+  return {
+    props: {
+      data,
+    },
+  };
+}

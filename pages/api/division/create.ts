@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import Cors from 'cors';
 import { getHeader } from '@/commons/utils/fetchOptions';
+import axios from 'axios'
 
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
@@ -27,17 +28,10 @@ export default async function handler(
   res: NextApiResponse
 ) {
   try{
-    // await runMiddleware(req, res, cors);
-    // const requestHeaders = new Headers(req.headers)
-
-    const response = await fetch('http://127.0.0.1:3000/api/user/create', {
-      method: "POST",
-      mode: "cors",
-      headers: getHeader(req.headers.cookie),
-      body: JSON.stringify(req.body),
-    });
-    const data = await response.json()
-    return res.end(JSON.stringify(data))
+    await runMiddleware(req, res, cors)
+    const {data} = await axios.post('http://127.0.0.1:3000/api/division/create',req.body,{ headers:getHeader(req.headers.cookie)})
+    const response = await data.json()
+    return res.end(JSON.stringify(response))
   }catch(err:any){
     return res.end(JSON.stringify({'error': err.message}))
   }
