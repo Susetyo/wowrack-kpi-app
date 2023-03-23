@@ -70,6 +70,12 @@ const Layout = ({ children }: Props) => {
               label: "KPI Management",
               onClick: () => onClickUrl("/kpi", "KPI Management"),
             },
+            {
+              key: "4",
+              icon: <ContainerOutlined />,
+              label: "Performance Review",
+              onClick: () => onClickUrl("/review", "Performance Reivew"),
+            },
           ]}
         />
       </Sider>

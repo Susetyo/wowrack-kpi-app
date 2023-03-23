@@ -1,79 +1,61 @@
-import { Input, Select, Button, Table, Tag, Image } from "antd";
+import { Button, Tag, Image, Table, Input, Select } from "antd";
 import { PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useRouter } from "next/router";
-import type { ColumnsType } from "antd/es/table";
-import useModalStore from "@/commons/store/modal";
-import ModalDeleteEmployee from "./ModalDeleteEmployee";
 import { getHeader } from "@/commons/utils/fetchOptions";
+import { useMemo } from "react";
+import type { ColumnsType } from "antd/es/table";
 
 const { Search } = Input;
 
 interface DataType {
   _id: string;
-  employeeID: string;
-  avatar: any;
-  fullname: string;
-  slug: string;
+  title: string;
+  type: string;
   division: {
     _id: string;
     title: string;
     id: string;
   };
-  email: string;
+  dateFrom: string;
+  dateTo: string;
   status: string;
-  kpiScore: number;
 }
 
 const Index = ({ data }: any) => {
-  const modalStore = useModalStore((state) => state);
   const router = useRouter();
-  const onSearch = (value: string) => console.log(value);
-  const onSelect = (value: string) => console.log(value);
-  const onAddNew = () => router.push("/employee/add");
+  const onAddKpi = () => router.push("/kpi/add");
+
   const columns: ColumnsType<DataType> = [
     {
-      title: "ID Employee",
-      dataIndex: "employeeID",
-      key: "employeeID",
+      title: "KPI Title",
+      dataIndex: "title",
+      key: "title",
     },
     {
-      title: "Employee Name",
-      dataIndex: "fullname",
-      key: "fullname",
-      render: (_, { fullname }) => (
-        <div className="flex gap-2">
-          <Image
-            width={22}
-            src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?x-oss-process=image/blur,r_50,s_50/quality,q_1/resize,m_mfit,h_200,w_200"
-            preview={{
-              src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-            }}
-          />
-          {fullname}
-        </div>
-      ),
+      title: "KPI Type",
+      dataIndex: "type",
+      key: "type",
     },
     {
-      title: "Division",
-      dataIndex: "division",
-      key: "division",
-      render: (_, { division: { title } }) => <div>{title}</div>,
+      title: "Start Date",
+      key: "dateFrom",
+      dataIndex: "dateFrom",
     },
     {
-      title: "Email",
-      key: "email",
-      dataIndex: "email",
+      title: "End Date",
+      key: "dateTo",
+      dataIndex: "dateTo",
     },
     {
       title: "Status",
       key: "status",
       dataIndex: "status",
       render: (_, { status }) => {
-        if (status === "active") {
+        if (status === "open") {
           return <Tag color="blue">{status.toUpperCase()}</Tag>;
         }
 
-        return status.toUpperCase();
+        return <Tag color="red">{status.toUpperCase()}</Tag>;
       },
     },
     {
@@ -85,27 +67,22 @@ const Index = ({ data }: any) => {
             type="primary"
             shape="circle"
             icon={<EditOutlined />}
-            onClick={() => {
-              router.push("/employee/edit/" + record?.slug);
-            }}
+            onClick={() => {}}
           />
           <Button
             danger
             type="default"
             shape="circle"
             icon={<DeleteOutlined />}
-            onClick={() => {
-              modalStore.setModalData({
-                ...modalStore?.modalData,
-                id: record?._id,
-              });
-              modalStore.openModal("modal-delete-employee");
-            }}
+            onClick={() => {}}
           />
         </div>
       ),
     },
   ];
+
+  const onSearch = () => {};
+  const onSelect = () => {};
 
   return (
     <>
@@ -130,14 +107,15 @@ const Index = ({ data }: any) => {
           <Button>View Log</Button>
           <Button
             icon={<PlusOutlined />}
-            onClick={onAddNew}
+            onClick={onAddKpi}
             type="primary"
             className="bg-blue"
           >
-            Add New
+            Create New KPI
           </Button>
         </div>
       </div>
+
       {data?.data && (
         <Table
           columns={columns}
@@ -146,7 +124,6 @@ const Index = ({ data }: any) => {
           scroll={{ y: 340 }}
         />
       )}
-      <ModalDeleteEmployee />
     </>
   );
 };
@@ -154,7 +131,7 @@ const Index = ({ data }: any) => {
 export default Index;
 
 export async function getServerSideProps({ req }: any) {
-  const fetching = await fetch("http://127.0.0.1:3000/api/user", {
+  const fetching = await fetch("http://127.0.0.1:3000/api/kpi", {
     method: "GET",
     headers: getHeader(req.headers.cookie),
   });
